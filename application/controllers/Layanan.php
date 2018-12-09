@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 require APPPATH . '/libraries/REST_Controller.php';
 use Restserver\Libraries\REST_Controller; 
 
-class User extends REST_Controller {
+class Layanan extends REST_Controller {
 
 		function __construct($config = 'rest') {         
     	parent::__construct($config);
@@ -12,17 +12,17 @@ class User extends REST_Controller {
     } 
 	//$this->response(array("status"=>"success","result" => $get_customer));
 	//$this->response(array("status"=>"success"));
-	function user_get(){
-		$get_customer = $this->db->query("SELECT nama_cust, alamat, jenis_kelamin, photo, password FROM user")->result();
+	function index_get(){
+		$get_customer = $this->db->query("SELECT nama_layanan, deskripsi, harga, photo, status FROM layanan")->result();
 		$this->response(array("status"=>"success","result" => $get_customer));
 	}
-	function user_post() {
+	function index_post() {
 		$action = $this->post('action');
 		$data_customer = array(
 			'nama_cust' => $this->post('nama_cust'),
 			'alamat' => $this->post('alamat'),
-			'jenis_kelamin' => $this->post('jenis_kelamin'),
-			'password' => $this->post('password'),
+			'harga' => $this->post('harga'),
+			'status' => $this->post('status'),
 			'photo' => $this->post('photo')
 	);
 	if ($action==='post')
@@ -59,11 +59,11 @@ class User extends REST_Controller {
 			$this->response(array('status' => "failed", "message"=>"nama_cust harus diisi"));
 		}else if (empty($data_customer['alamat'])){
 			$this->response(array('status' => "failed", "message"=>"alamat harus diisi"));
-		}else if (empty($data_customer['jenis_kelamin'])){
-			$this->response(array('status' => "failed", "message"=>"jenis_kelamin harus diisi"));
+		}else if (empty($data_customer['harga'])){
+			$this->response(array('status' => "failed", "message"=>"harga harus diisi"));
 		}
 		else{
-			$get_customer_baseid = $this->db->query("SELECT * FROM user as p WHERE p.id_cust='".$data_customer['_customer']."'")->result();
+			$get_customer_baseid = $this->db->query("SELECT * FROM layanan as p WHERE p.id_cust='".$data_customer['_customer']."'")->result();
 			if(empty($get_customer_baseid)){
 				$insert= $this->db->insert('customer',$data_customer);
 			if (!empty($_FILES)){
@@ -109,15 +109,15 @@ class User extends REST_Controller {
 		//////////////////////////////////////////////////////////////////
 		//cek validasi
 		if (empty($data_customer['id_cust'])){
-			$this->response(array('status' => "failed", "message"=>"Id user harus diisi"));
+			$this->response(array('status' => "failed", "message"=>"Id layanan harus diisi"));
 		}else if (empty($data_customer['nama_cust'])){
 			$this->response(array('status' => "failed", "message"=>"nama_cust harus diisi"));
 		}else if (empty($data_customer['alamat'])){
 			$this->response(array('status' => "failed", "message"=>"alamat harus diisi"));
-		}else if (empty($data_customer['jenis_kelamin'])){
-			$this->response(array('status' => "failed", "message"=>"jenis_kelamin harus	diisi"));
+		}else if (empty($data_customer['harga'])){
+			$this->response(array('status' => "failed", "message"=>"harga harus	diisi"));
 		}else{
-			$get_customer_baseid = $this->db->query("SELECT * FROM user as p WHERE p.id_cust='".$data_customer['id_cust']."'")->result();
+			$get_customer_baseid = $this->db->query("SELECT * FROM layanan as p WHERE p.id_cust='".$data_customer['id_cust']."'")->result();
 			if(empty($get_customer_baseid)){
 				$this->response(array('status' => "failed", "message"=>"Id_cust Tidak ada dalam database"));
 			}else{
@@ -134,18 +134,18 @@ class User extends REST_Controller {
 				}
 				if ($insert_image==="success"){
 					//jika photo di update eksekusi query
-					$update= $this->db->query("Update user Set nama_cust
-					='".$data_customer['nama_cust']."', alamat ='".$data_customer['alamat']."' , jenis_kelamin
-					='".$data_customer['jenis_kelamin']."', photo ='".$data_customer['photo']."' Where id_cust
+					$update= $this->db->query("Update layanan Set nama_layanan
+					='".$data_customer['nama_cust']."', deskripsi ='".$data_customer['alamat']."' , harga
+					='".$data_customer['harga']."', photo ='".$data_customer['photo']."' Where id_cust
 					='".$data_customer['id_cust']."'");
 					$data_customer['photo'] = base_url()."upload/".$user_img;
 				}else{
 					//jika photo di kosong atau tidak di update eksekusi query
-					$update= $this->db->query("Update user Set nama_cust
-					='".$data_customer['nama_cust']."', alamat ='".$data_customer['alamat']."' , jenis_kelamin
-					='".$data_customer['jenis_kelamin']."' Where id_cust ='".$data_customer['id_cust']."'");
+					$update= $this->db->query("Update layanan Set nama_layanan
+					='".$data_customer['nama_cust']."', deskripsi ='".$data_customer['alamat']."' , harga
+					='".$data_customer['harga']."' Where id_cust ='".$data_customer['id_cust']."'");
 					$getPhotoPath =$this->db->query("SELECT photo
-					FROM user Where id_cust='".$data_customer['id_cust']."'")->result();
+					FROM layanan Where id_cust='".$data_customer['id_cust']."'")->result();
 					if(!empty($getPhotoPath)){
 						foreach ($getPhotoPath as $row)
 						{
@@ -164,10 +164,10 @@ class User extends REST_Controller {
 	}
 	function deleteCustomer($data_customer){
 	if (empty($data_customer['id_cust'])){
-		$this->response(array('status' => "failed", "message"=>"Id user harus diisi"));
+		$this->response(array('status' => "failed", "message"=>"Id layanan harus diisi"));
 	}
 	else{
-		$getPhotoPath =$this->db->query("SELECT photo FROM user Where
+		$getPhotoPath =$this->db->query("SELECT photo FROM layanan Where
 		id_cust='".$data_customer['id_cust']."'")->result();
 		if(!empty($getPhotoPath)){
 			foreach ($getPhotoPath as $row)
@@ -176,10 +176,10 @@ class User extends REST_Controller {
 			}
 			//delete image
 			unlink($path);
-			$this->db->query("Delete From user Where id_cust='".$data_customer['id_cust']."'");
+			$this->db->query("Delete From layanan Where id_cust='".$data_customer['id_cust']."'");
 			$this->response(array('status'=>'success',"message"=>"Data id = ".$data_customer['id_cust']." berhasil di delete "));
 		} else{
-				$this->response(array('status'=>'fail',"message"=>"Id user tidak ada dalam database"));
+				$this->response(array('status'=>'fail',"message"=>"Id layanan tidak ada dalam database"));
 			}
 		}
 	}
