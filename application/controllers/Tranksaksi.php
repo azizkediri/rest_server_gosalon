@@ -13,7 +13,7 @@ class Tranksaksi extends REST_Controller {
 	//$this->response(array("status"=>"success","result" => $get_tranksaksi));
 	//$this->response(array("status"=>"success"));
 	function index_get(){
-		$get_tranksaksi = $this->db->query("SELECT id_cust, no_antrian, nama_salon, nama_layanan, photo, tanggal FROM tranksaksi")->result();
+		$get_tranksaksi = $this->db->query("SELECT id_cust, no_antrian, nama_salon, nama_layanan, total, tanggal FROM tranksaksi")->result();
 		$this->response(array("status"=>"success","result" => $get_tranksaksi));
 	}
 	function index_post() {
@@ -23,6 +23,7 @@ class Tranksaksi extends REST_Controller {
 			'no_antrian' => $this->post('no_antrian'),
 			'nama_salon' => $this->post('nama_salon'),
 			'nama_layanan' => $this->post('nama_layanan'),
+			'total' => $this->post('total'),
 			'tanggal' => $this->post('tanggal')
 	);
 	if ($action==='post')
@@ -66,7 +67,7 @@ class Tranksaksi extends REST_Controller {
 			// 		$data_tranksaksi['photo'] = base_url()."upload/".$user_img;
 			// 	}else{
 			// 			$data_tranksaksi['photo'] = "";
-					}
+					//}
 					if ($insert){
 						$this->response(array('status'=>'success','result' =>
 						array($data_tranksaksi),"message"=>$insert));
@@ -153,10 +154,11 @@ class Tranksaksi extends REST_Controller {
 			}
 		}
 	}
+
 	function deleteTranksaksi($data_tranksaksi){
 	if (empty($data_tranksaksi['id_transaksi'])){
 		$this->response(array('status' => "failed", "message"=>"Id tranksaksi harus diisi"));
-	// }
+	 }
 	// else{
 	// 	// $getPhotoPath =$this->db->query("SELECT photo FROM tranksaksi Where id_tranksaksi='".$data_tranksaksi['id_transaksi']."'")->result();
 	// 	if(!empty($getPhotoPath)){
@@ -171,6 +173,5 @@ class Tranksaksi extends REST_Controller {
 		// } else{
 		// 		$this->response(array('status'=>'fail',"message"=>"Id tranksaksi tidak ada dalam database"));
 		// 	}
-		}
+		//}
 	}
-}

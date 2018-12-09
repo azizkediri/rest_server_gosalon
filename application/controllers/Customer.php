@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 require APPPATH . '/libraries/REST_Controller.php';
 use Restserver\Libraries\REST_Controller; 
 
-class User extends REST_Controller {
+class Customer extends REST_Controller {
 
 		function __construct($config = 'rest') {         
     	parent::__construct($config);
@@ -12,11 +12,11 @@ class User extends REST_Controller {
     } 
 	//$this->response(array("status"=>"success","result" => $get_customer));
 	//$this->response(array("status"=>"success"));
-	function user_get(){
-		$get_customer = $this->db->query("SELECT nama_cust, alamat, jenis_kelamin, photo, password FROM user")->result();
+	function index_get(){
+		$get_customer = $this->db->query("SELECT nama_cust, alamat, jenis_kelamin, photo, password FROM customer")->result();
 		$this->response(array("status"=>"success","result" => $get_customer));
 	}
-	function user_post() {
+	function index_post() {
 		$action = $this->post('action');
 		$data_customer = array(
 			'nama_cust' => $this->post('nama_cust'),
@@ -38,7 +38,7 @@ class User extends REST_Controller {
 	}
 	function insertCustomer($data_customer){
 		//function upload image
-		$uploaddir = str_replace("application/", "", APPPATH).'upload/';
+		$uploaddir = str_replace("application/", "", APPPATH).'upload/customer';
 		if(!file_exists($uploaddir) && !is_dir($uploaddir)) {
 			echo mkdir($uploaddir, 0750, true);
 		}
@@ -48,7 +48,7 @@ class User extends REST_Controller {
 			// $user_img = time() . rand() . '.' . $ext;
 			$user_img = $data_customer['nama_cust']. '.' . "png";
 			$uploadfile = $uploaddir . $user_img;
-			$data_customer['photo'] = "upload/".$user_img;
+			$data_customer['photo'] = "upload/customer".$user_img;
 		}else{
 			$data_customer['photo']="";
 		}
@@ -63,7 +63,7 @@ class User extends REST_Controller {
 			$this->response(array('status' => "failed", "message"=>"jenis_kelamin harus diisi"));
 		}
 		else{
-			$get_customer_baseid = $this->db->query("SELECT * FROM user as p WHERE p.id_cust='".$data_customer['_customer']."'")->result();
+			$get_customer_baseid = $this->db->query("SELECT * FROM customer as p WHERE p.id_cust='".$data_customer['_customer']."'")->result();
 			if(empty($get_customer_baseid)){
 				$insert= $this->db->insert('customer',$data_customer);
 			if (!empty($_FILES)){
@@ -76,7 +76,7 @@ class User extends REST_Controller {
 					}else{
 						$insert_image = "Image Tidak ada Masukan";
 					}
-					$data_customer['photo'] = base_url()."upload/".$user_img;
+					$data_customer['photo'] = base_url()."upload/customer".$user_img;
 				}else{
 						$data_customer['photo'] = "";
 					}
@@ -92,7 +92,7 @@ class User extends REST_Controller {
 	}
 	function updateCustomer($data_customer){
 	//function upload image
-		$uploaddir = str_replace("application/", "", APPPATH).'upload/';
+		$uploaddir = str_replace("application/", "", APPPATH).'upload/customer';
 		if(!file_exists($uploaddir) && !is_dir($uploaddir)) {
 			echo mkdir($uploaddir, 0750, true);
 		}
@@ -102,14 +102,14 @@ class User extends REST_Controller {
 			//$user_img = time() . rand() . '.' . $ext;
 			$user_img = $data_customer['id_cust'].'.' ."png";
 			$uploadfile = $uploaddir . $user_img;
-			$data_customer['photo'] = "upload/".$user_img;
+			$data_customer['photo'] = "upload/customer".$user_img;
 		}
-		//$this->response(array(base_url()."upload/".$user_img));
+		//$this->response(array(base_url()."upload/customer".$user_img));
 		//////////////////////////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////
 		//cek validasi
 		if (empty($data_customer['id_cust'])){
-			$this->response(array('status' => "failed", "message"=>"Id user harus diisi"));
+			$this->response(array('status' => "failed", "message"=>"Id customer harus diisi"));
 		}else if (empty($data_customer['nama_cust'])){
 			$this->response(array('status' => "failed", "message"=>"nama_cust harus diisi"));
 		}else if (empty($data_customer['alamat'])){
@@ -117,7 +117,7 @@ class User extends REST_Controller {
 		}else if (empty($data_customer['jenis_kelamin'])){
 			$this->response(array('status' => "failed", "message"=>"jenis_kelamin harus	diisi"));
 		}else{
-			$get_customer_baseid = $this->db->query("SELECT * FROM user as p WHERE p.id_cust='".$data_customer['id_cust']."'")->result();
+			$get_customer_baseid = $this->db->query("SELECT * FROM customer as p WHERE p.id_cust='".$data_customer['id_cust']."'")->result();
 			if(empty($get_customer_baseid)){
 				$this->response(array('status' => "failed", "message"=>"Id_cust Tidak ada dalam database"));
 			}else{
@@ -134,18 +134,18 @@ class User extends REST_Controller {
 				}
 				if ($insert_image==="success"){
 					//jika photo di update eksekusi query
-					$update= $this->db->query("Update user Set nama_cust
+					$update= $this->db->query("Update customer Set nama_cust
 					='".$data_customer['nama_cust']."', alamat ='".$data_customer['alamat']."' , jenis_kelamin
 					='".$data_customer['jenis_kelamin']."', photo ='".$data_customer['photo']."' Where id_cust
 					='".$data_customer['id_cust']."'");
-					$data_customer['photo'] = base_url()."upload/".$user_img;
+					$data_customer['photo'] = base_url()."upload/customer".$user_img;
 				}else{
 					//jika photo di kosong atau tidak di update eksekusi query
-					$update= $this->db->query("Update user Set nama_cust
+					$update= $this->db->query("Update customer Set nama_cust
 					='".$data_customer['nama_cust']."', alamat ='".$data_customer['alamat']."' , jenis_kelamin
 					='".$data_customer['jenis_kelamin']."' Where id_cust ='".$data_customer['id_cust']."'");
 					$getPhotoPath =$this->db->query("SELECT photo
-					FROM user Where id_cust='".$data_customer['id_cust']."'")->result();
+					FROM customer Where id_cust='".$data_customer['id_cust']."'")->result();
 					if(!empty($getPhotoPath)){
 						foreach ($getPhotoPath as $row)
 						{
@@ -164,10 +164,10 @@ class User extends REST_Controller {
 	}
 	function deleteCustomer($data_customer){
 	if (empty($data_customer['id_cust'])){
-		$this->response(array('status' => "failed", "message"=>"Id user harus diisi"));
+		$this->response(array('status' => "failed", "message"=>"Id customer harus diisi"));
 	}
 	else{
-		$getPhotoPath =$this->db->query("SELECT photo FROM user Where
+		$getPhotoPath =$this->db->query("SELECT photo FROM customer Where
 		id_cust='".$data_customer['id_cust']."'")->result();
 		if(!empty($getPhotoPath)){
 			foreach ($getPhotoPath as $row)
@@ -176,10 +176,10 @@ class User extends REST_Controller {
 			}
 			//delete image
 			unlink($path);
-			$this->db->query("Delete From user Where id_cust='".$data_customer['id_cust']."'");
+			$this->db->query("Delete From customer Where id_cust='".$data_customer['id_cust']."'");
 			$this->response(array('status'=>'success',"message"=>"Data id = ".$data_customer['id_cust']." berhasil di delete "));
 		} else{
-				$this->response(array('status'=>'fail',"message"=>"Id user tidak ada dalam database"));
+				$this->response(array('status'=>'fail',"message"=>"Id customer tidak ada dalam database"));
 			}
 		}
 	}
