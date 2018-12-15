@@ -64,17 +64,6 @@
             }
         }
 
-        public function kategori_post()
-        {
-            $kategori = $this->input->post('id_kategori');
-            $this->db->select('w.id_wisata, w.nama_wisata, w.id_kategori ,w.alamat, w.deskripsi, w.longitude ,w.latitude ,w.image');
-            $this->db->from('tbl_wisata as w');
-            $this->db->join('tbl_kategori as k', 'w.id_kategori = k.id_kategori');
-            $this->db->where('w.id_kategori',$kategori);
-            $query = $this->db->get()->result();
-            $this->response(array('status' => 'sukses','result'=>$query, 200));
-        }
-
 
     }
 
