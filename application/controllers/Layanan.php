@@ -10,35 +10,37 @@ class Layanan extends REST_Controller {
     	parent::__construct($config);
     	$this->load->database();
     } 
-	//$this->response(array("status"=>"success","result" => $get_customer));
+	//$this->response(array("status"=>"success","result" => $get_layanan));
 	//$this->response(array("status"=>"success"));
 	function index_get(){
-		$get_customer = $this->db->query("SELECT nama_layanan, deskripsi, harga, photo, status FROM layanan")->result();
-		$this->response(array("status"=>"success","result" => $get_customer));
+		$get_layanan = $this->db->query("SELECT * FROM layanan")->result();
+		$this->response(array("status"=>"success","result" => $get_layanan));
 	}
 	function index_post() {
 		$action = $this->post('action');
-		$data_customer = array(
-			'nama_cust' => $this->post('nama_cust'),
-			'alamat' => $this->post('alamat'),
+		$data_layanan = array(
+			'id_layanan' => $this->post('id_layanan'),
+			'id_salon' => $this->post('id_salon'),
+			'nama_layanan' => $this->post('nama_layanan'),
+			'deskripsi' => $this->post('deskripsi'),
 			'harga' => $this->post('harga'),
 			'status' => $this->post('status'),
 			'photo' => $this->post('photo')
 	);
 	if ($action==='post')
 		{	
-			$this->insertCustomer($data_customer);
+			$this->insertLayanan($data_layanan);
 		}else if ($action==='put'){
-			$this->updateCustomer($data_customer);
+			$this->updateLayanan($data_layanan);
 		}else if ($action==='delete'){ 
-			$this->deleteCustomer($data_customer);
+			$this->deleteLayanan($data_layanan);
 		}else{
 			$this->response(array("status"=>"failed","message" => "action harus diisi"));
 		}
 	}
-	function insertCustomer($data_customer){
+	function insertLayanan($data_layanan){
 		//function upload image
-		$uploaddir = str_replace("application/", "", APPPATH).'upload/';
+		$uploaddir = str_replace("application/", "", APPPATH).'upload/layanan/';
 		if(!file_exists($uploaddir) && !is_dir($uploaddir)) {
 			echo mkdir($uploaddir, 0750, true);
 		}
@@ -46,26 +48,26 @@ class Layanan extends REST_Controller {
 			$path = $_FILES['photo']['name'];
 			$ext = pathinfo($path, PATHINFO_EXTENSION);
 			// $user_img = time() . rand() . '.' . $ext;
-			$user_img = $data_customer['nama_cust']. '.' . "png";
+			$user_img = $data_layanan['nama_layanan']. '.' . "png";
 			$uploadfile = $uploaddir . $user_img;
-			$data_customer['photo'] = "upload/".$user_img;
+			$data_layanan['photo'] = "upload/layanan/".$user_img;
 		}else{
-			$data_customer['photo']="";
+			$data_layanan['photo']="";
 		}
 		//////////////////////////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////
 		//cek validasi
-		if (empty($data_customer['nama_cust'])){
-			$this->response(array('status' => "failed", "message"=>"nama_cust harus diisi"));
-		}else if (empty($data_customer['alamat'])){
-			$this->response(array('status' => "failed", "message"=>"alamat harus diisi"));
-		}else if (empty($data_customer['harga'])){
+		if (empty($data_layanan['nama_layanan'])){
+			$this->response(array('status' => "failed", "message"=>"nama_layanan harus diisi"));
+		}else if (empty($data_layanan['deskripsi'])){
+			$this->response(array('status' => "failed", "message"=>"deskripsi harus diisi"));
+		}else if (empty($data_layanan['harga'])){
 			$this->response(array('status' => "failed", "message"=>"harga harus diisi"));
 		}
 		else{
-			$get_customer_baseid = $this->db->query("SELECT * FROM layanan as p WHERE p.id_cust='".$data_customer['_customer']."'")->result();
-			if(empty($get_customer_baseid)){
-				$insert= $this->db->insert('customer',$data_customer);
+			$get_layanan_baseid = $this->db->query("SELECT * FROM layanan as l WHERE l.id_layanan='".$data_layanan['_layanan']."'")->result();
+			if(empty($get_layanan_baseid)){
+				$insert= $this->db->insert('layanan',$data_layanan);
 			if (!empty($_FILES)){
 				if ($_FILES["photo"]["name"]) {
 					if(move_uploaded_file($_FILES["photo"]["tmp_name"],$uploadfile)){
@@ -76,23 +78,23 @@ class Layanan extends REST_Controller {
 					}else{
 						$insert_image = "Image Tidak ada Masukan";
 					}
-					$data_customer['photo'] = base_url()."upload/".$user_img;
+					$data_layanan['photo'] = base_url()."upload/layanan/".$user_img;
 				}else{
-						$data_customer['photo'] = "";
+						$data_layanan['photo'] = "";
 					}
 					if ($insert){
 						$this->response(array('status'=>'success','result' =>
-						array($data_customer),"message"=>$insert));
+						array($data_layanan),"message"=>$insert));
 					}
 			}else{
-						$this->response(array('status' => "failed", "message"=>"Id_cust
+						$this->response(array('status' => "failed", "message"=>"id_layanan
 					sudah ada"));
 			}
 		}
 	}
-	function updateCustomer($data_customer){
+	function updateLayanan($data_layanan){
 	//function upload image
-		$uploaddir = str_replace("application/", "", APPPATH).'upload/';
+		$uploaddir = str_replace("application/", "", APPPATH).'upload/layanan/';
 		if(!file_exists($uploaddir) && !is_dir($uploaddir)) {
 			echo mkdir($uploaddir, 0750, true);
 		}
@@ -100,26 +102,26 @@ class Layanan extends REST_Controller {
 			$path = $_FILES['photo']['name'];
 			// $ext = pathinfo($path, PATHINFO_EXTENSION);
 			//$user_img = time() . rand() . '.' . $ext;
-			$user_img = $data_customer['id_cust'].'.' ."png";
+			$user_img = $data_layanan['id_layanan'].'.' ."png";
 			$uploadfile = $uploaddir . $user_img;
-			$data_customer['photo'] = "upload/".$user_img;
+			$data_layanan['photo'] = "upload/layanan/".$user_img;
 		}
-		//$this->response(array(base_url()."upload/".$user_img));
+		//$this->response(array(base_url()."upload/layanan/".$user_img));
 		//////////////////////////////////////////////////////////////////
 		//////////////////////////////////////////////////////////////////
 		//cek validasi
-		if (empty($data_customer['id_cust'])){
+		if (empty($data_layanan['id_layanan'])){
 			$this->response(array('status' => "failed", "message"=>"Id layanan harus diisi"));
-		}else if (empty($data_customer['nama_cust'])){
-			$this->response(array('status' => "failed", "message"=>"nama_cust harus diisi"));
-		}else if (empty($data_customer['alamat'])){
-			$this->response(array('status' => "failed", "message"=>"alamat harus diisi"));
-		}else if (empty($data_customer['harga'])){
+		}else if (empty($data_layanan['nama_layanan'])){
+			$this->response(array('status' => "failed", "message"=>"nama_layanan harus diisi"));
+		}else if (empty($data_layanan['deskripsi'])){
+			$this->response(array('status' => "failed", "message"=>"deskripsi harus diisi"));
+		}else if (empty($data_layanan['harga'])){
 			$this->response(array('status' => "failed", "message"=>"harga harus	diisi"));
 		}else{
-			$get_customer_baseid = $this->db->query("SELECT * FROM layanan as p WHERE p.id_cust='".$data_customer['id_cust']."'")->result();
-			if(empty($get_customer_baseid)){
-				$this->response(array('status' => "failed", "message"=>"Id_cust Tidak ada dalam database"));
+			$get_layanan_baseid = $this->db->query("SELECT * FROM layanan as l WHERE l.id_layanan='".$data_layanan['id_layanan']."'")->result();
+			if(empty($get_layanan_baseid)){
+				$this->response(array('status' => "failed", "message"=>"id_layanan Tidak ada dalam database"));
 			}else{
 				//$this->response(unlink($uploadfile));
 				//cek apakah image
@@ -135,40 +137,40 @@ class Layanan extends REST_Controller {
 				if ($insert_image==="success"){
 					//jika photo di update eksekusi query
 					$update= $this->db->query("Update layanan Set nama_layanan
-					='".$data_customer['nama_cust']."', deskripsi ='".$data_customer['alamat']."' , harga
-					='".$data_customer['harga']."', photo ='".$data_customer['photo']."' Where id_cust
-					='".$data_customer['id_cust']."'");
-					$data_customer['photo'] = base_url()."upload/".$user_img;
+					='".$data_layanan['nama_layanan']."', deskripsi ='".$data_layanan['deskripsi']."' , harga
+					='".$data_layanan['harga']."', photo ='".$data_layanan['photo']."' Where id_layanan
+					='".$data_layanan['id_layanan']."'");
+					$data_layanan['photo'] = base_url()."upload/layanan/".$user_img;
 				}else{
 					//jika photo di kosong atau tidak di update eksekusi query
 					$update= $this->db->query("Update layanan Set nama_layanan
-					='".$data_customer['nama_cust']."', deskripsi ='".$data_customer['alamat']."' , harga
-					='".$data_customer['harga']."' Where id_cust ='".$data_customer['id_cust']."'");
+					='".$data_layanan['nama_layanan']."', deskripsi ='".$data_layanan['deskripsi']."' , harga
+					='".$data_layanan['harga']."' Where id_layanan ='".$data_layanan['id_layanan']."'");
 					$getPhotoPath =$this->db->query("SELECT photo
-					FROM layanan Where id_cust='".$data_customer['id_cust']."'")->result();
+					FROM layanan Where id_layanan='".$data_layanan['id_layanan']."'")->result();
 					if(!empty($getPhotoPath)){
 						foreach ($getPhotoPath as $row)
 						{
 						$user_img = $row->photo;
-						$data_customer['photo'] =
+						$data_layanan['photo'] =
 						base_url().$user_img;
 						}
 					}
 				}
 				if ($update){
 					$this->response(array('status'=>'success','result' =>
-					array($data_customer),"message"=>$update));
+					array($data_layanan),"message"=>$update));
 				}
 			}
 		}
 	}
-	function deleteCustomer($data_customer){
-	if (empty($data_customer['id_cust'])){
+	function deleteLayanan($data_layanan){
+	if (empty($data_layanan['id_layanan'])){
 		$this->response(array('status' => "failed", "message"=>"Id layanan harus diisi"));
 	}
 	else{
 		$getPhotoPath =$this->db->query("SELECT photo FROM layanan Where
-		id_cust='".$data_customer['id_cust']."'")->result();
+		id_layanan='".$data_layanan['id_layanan']."'")->result();
 		if(!empty($getPhotoPath)){
 			foreach ($getPhotoPath as $row)
 			{
@@ -176,8 +178,8 @@ class Layanan extends REST_Controller {
 			}
 			//delete image
 			unlink($path);
-			$this->db->query("Delete From layanan Where id_cust='".$data_customer['id_cust']."'");
-			$this->response(array('status'=>'success',"message"=>"Data id = ".$data_customer['id_cust']." berhasil di delete "));
+			$this->db->query("Delete From layanan Where id_layanan='".$data_layanan['id_layanan']."'");
+			$this->response(array('status'=>'success',"message"=>"Data id = ".$data_layanan['id_layanan']." berhasil di delete "));
 		} else{
 				$this->response(array('status'=>'fail',"message"=>"Id layanan tidak ada dalam database"));
 			}
