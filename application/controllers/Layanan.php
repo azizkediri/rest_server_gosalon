@@ -16,6 +16,13 @@ class Layanan extends REST_Controller {
 		$get_layanan = $this->db->query("SELECT * FROM layanan")->result();
 		$this->response(array("status"=>"success","result" => $get_layanan));
 	}
+
+	function detaillayanan_post(){
+		$get_layanan = $this->db->query("SELECT * FROM `layanan` WHERE id_salon =".$this->post('id'))->result();
+		$this->response(array("status"=>"success","result" => $get_layanan));
+	}
+
+
 	function index_post() {
 		$action = $this->post('action');
 		$data_layanan = array(
@@ -26,10 +33,11 @@ class Layanan extends REST_Controller {
 			'harga' => $this->post('harga'),
 			'status' => $this->post('status'),
 			'photo' => $this->post('photo')
-	);
+		);
+
 	if ($action==='post')
 		{	
-			$this->insertLayanan($data_layanan);
+			// $this->insertLayanan($data_layanan);
 		}else if ($action==='put'){
 			$this->updateLayanan($data_layanan);
 		}else if ($action==='delete'){ 
@@ -38,60 +46,63 @@ class Layanan extends REST_Controller {
 			$this->response(array("status"=>"failed","message" => "action harus diisi"));
 		}
 	}
-	function insertLayanan($data_layanan){
-		//function upload image
-		$uploaddir = str_replace("application/", "", APPPATH).'upload/layanan/';
-		if(!file_exists($uploaddir) && !is_dir($uploaddir)) {
-			echo mkdir($uploaddir, 0750, true);
-		}
-		if (!empty($_FILES)){
-			$path = $_FILES['photo']['name'];
-			$ext = pathinfo($path, PATHINFO_EXTENSION);
-			// $user_img = time() . rand() . '.' . $ext;
-			$user_img = $data_layanan['nama_layanan']. '.' . "png";
-			$uploadfile = $uploaddir . $user_img;
-			$data_layanan['photo'] = "upload/layanan/".$user_img;
-		}else{
-			$data_layanan['photo']="";
-		}
-		//////////////////////////////////////////////////////////////////
-		//////////////////////////////////////////////////////////////////
-		//cek validasi
-		if (empty($data_layanan['nama_layanan'])){
-			$this->response(array('status' => "failed", "message"=>"nama_layanan harus diisi"));
-		}else if (empty($data_layanan['deskripsi'])){
-			$this->response(array('status' => "failed", "message"=>"deskripsi harus diisi"));
-		}else if (empty($data_layanan['harga'])){
-			$this->response(array('status' => "failed", "message"=>"harga harus diisi"));
-		}
-		else{
-			$get_layanan_baseid = $this->db->query("SELECT * FROM layanan as l WHERE l.id_layanan='".$data_layanan['_layanan']."'")->result();
-			if(empty($get_layanan_baseid)){
-				$insert= $this->db->insert('layanan',$data_layanan);
-			if (!empty($_FILES)){
-				if ($_FILES["photo"]["name"]) {
-					if(move_uploaded_file($_FILES["photo"]["tmp_name"],$uploadfile)){
-						$insert_image = "success";
-					} else{
-						$insert_image = "failed";
-					}
-					}else{
-						$insert_image = "Image Tidak ada Masukan";
-					}
-					$data_layanan['photo'] = base_url()."upload/layanan/".$user_img;
-				}else{
-						$data_layanan['photo'] = "";
-					}
-					if ($insert){
-						$this->response(array('status'=>'success','result' =>
-						array($data_layanan),"message"=>$insert));
-					}
-			}else{
-						$this->response(array('status' => "failed", "message"=>"id_layanan
-					sudah ada"));
-			}
-		}
-	}
+
+	// function insertLayanan($data_layanan){
+	// 	//function upload image
+	// 	$uploaddir = str_replace("application/", "", APPPATH).'upload/layanan/';
+	// 	if(!file_exists($uploaddir) && !is_dir($uploaddir)) {
+	// 		echo mkdir($uploaddir, 0750, true);
+	// 	}
+	// 	if (!empty($_FILES)){
+	// 		$path = $_FILES['photo']['name'];
+	// 		$ext = pathinfo($path, PATHINFO_EXTENSION);
+	// 		// $user_img = time() . rand() . '.' . $ext;
+	// 		$user_img = $data_layanan['nama_layanan']. '.' . "png";
+	// 		$uploadfile = $uploaddir . $user_img;
+	// 		$data_layanan['photo'] = "upload/layanan/".$user_img;
+	// 	}else{
+	// 		$data_layanan['photo']="";
+	// 	}
+	// 	//////////////////////////////////////////////////////////////////
+	// 	//////////////////////////////////////////////////////////////////
+	// 	//cek validasi
+	// 	if (empty($data_layanan['nama_layanan'])){
+	// 		$this->response(array('status' => "failed", "message"=>"nama_layanan harus diisi"));
+	// 	}else if (empty($data_layanan['deskripsi'])){
+	// 		$this->response(array('status' => "failed", "message"=>"deskripsi harus diisi"));
+	// 	}else if (empty($data_layanan['harga'])){
+	// 		$this->response(array('status' => "failed", "message"=>"harga harus diisi"));
+	// 	}
+	// 	else{
+	// 		$get_layanan_baseid = $this->db->query("SELECT * FROM layanan as l WHERE l.id_layanan='".$data_layanan['_layanan']."'")->result();
+	// 		if(empty($get_layanan_baseid)){
+	// 			$insert= $this->db->insert('layanan',$data_layanan);
+	// 		if (!empty($_FILES)){
+	// 			if ($_FILES["photo"]["name"]) {
+	// 				if(move_uploaded_file($_FILES["photo"]["tmp_name"],$uploadfile)){
+	// 					$insert_image = "success";
+	// 				} else{
+	// 					$insert_image = "failed";
+	// 				}
+	// 				}else{
+	// 					$insert_image = "Image Tidak ada Masukan";
+	// 				}
+	// 				$data_layanan['photo'] = base_url()."upload/layanan/".$user_img;
+	// 			}else{
+	// 					$data_layanan['photo'] = "";
+	// 				}
+	// 				if ($insert){
+	// 					$this->response(array('status'=>'success','result' =>
+	// 					array($data_layanan),"message"=>$insert));
+	// 				}
+	// 		}else{
+	// 					$this->response(array('status' => "failed", "message"=>"id_layanan
+	// 				sudah ada"));
+	// 		}
+	// 	}
+	// }
+
+
 	function updateLayanan($data_layanan){
 	//function upload image
 		$uploaddir = str_replace("application/", "", APPPATH).'upload/layanan/';
@@ -164,6 +175,7 @@ class Layanan extends REST_Controller {
 			}
 		}
 	}
+
 	function deleteLayanan($data_layanan){
 	if (empty($data_layanan['id_layanan'])){
 		$this->response(array('status' => "failed", "message"=>"Id layanan harus diisi"));
@@ -185,4 +197,6 @@ class Layanan extends REST_Controller {
 			}
 		}
 	}
+
+
 }
